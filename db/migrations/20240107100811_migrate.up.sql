@@ -22,12 +22,16 @@ CREATE TABLE "events" (
   "description" text,
   "banner" varchar,
   "created_at" timestamp NOT NULL DEFAULT 'now()'
+  "updated_at" timestamp
+  "deleted_at" timestamp
 );
 
 CREATE TABLE "organizers" (
   "id" bigserial PRIMARY KEY,
   "name" varchar,
   "created_at" timestamp NOT NULL DEFAULT 'now()'
+  "updated_at" timestamp
+  "deleted_at" timestamp
 );
 
 CREATE TABLE "tickets" (
@@ -40,6 +44,8 @@ CREATE TABLE "tickets" (
   "sale_start" timestamp,
   "sale_end" timestamp,
   "created_at" timestamp NOT NULL DEFAULT 'now()'
+  "updated_at" timestamp
+  "deleted_at" timestamp
 );
 
 CREATE TABLE "tikets_sale" (
@@ -49,6 +55,8 @@ CREATE TABLE "tikets_sale" (
   "amount" bigint,
   "status" sale_status,
   "created_at" timestamp NOT NULL DEFAULT 'now()'
+  "updated_at" timestamp
+  "deleted_at" timestamp
 );
 
 CREATE TABLE "users" (
@@ -60,6 +68,8 @@ CREATE TABLE "users" (
   "email" varchar,
   "password" varchar,
   "created_at" timestamp NOT NULL DEFAULT 'now()'
+  "updated_at" timestamp
+  "deleted_at" timestamp
 );
 
 CREATE INDEX ON "events" ("name");
