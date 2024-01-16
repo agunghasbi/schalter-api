@@ -29,6 +29,7 @@ CREATE TABLE "events" (
 CREATE TABLE "organizers" (
   "id" bigserial PRIMARY KEY,
   "name" varchar,
+  "avatar" varchar,
   "created_at" timestamp NOT NULL DEFAULT 'now()'
   "updated_at" timestamp
   "deleted_at" timestamp

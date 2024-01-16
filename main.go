@@ -16,6 +16,13 @@ func main() {
 	router.HandleFunc("/api/v1/events", controllers.CreateEvent).Methods("POST")
 	router.HandleFunc("/api/v1/events/{id}", controllers.UpdateEvent).Methods("POST")
 	router.HandleFunc("/api/v1/events/{id}", controllers.DeleteEvent).Methods("DELETE")
+	
+	router.HandleFunc("/api/v1/organizers", controllers.GetOrganizers).Methods("GET")
+	router.HandleFunc("/api/v1/organizers/{id}", controllers.GetOrganizer).Methods("GET")
+	router.HandleFunc("/api/v1/organizers", controllers.CreateOrganizer).Methods("POST")
+	router.HandleFunc("/api/v1/organizers/{id}", controllers.UpdateOrganizer).Methods("POST")
+	router.HandleFunc("/api/v1/organizers/{id}", controllers.DeleteOrganizer).Methods("DELETE")
+
 	// router.HandleFunc("/api/user/new", controllers.CreateAccount).Methods("POST")
 	// router.HandleFunc("/api/user/login", controllers.Authenticate).Methods("POST")
 	// router.HandleFunc("/api/contacts/new", controllers.CreateContact).Methods("POST")
