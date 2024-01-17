@@ -1,11 +1,18 @@
 package models
 
 import (
+	"github.com/dgrijalva/jwt-go"
 	u "github.com/agunghasbi/schalter-api/utils"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 	"strings"
+	"os"
 )
+
+type Token struct {
+	UserId uint
+	jwt.StandardClaims
+}
 
 type User struct {
 	gorm.Model
@@ -15,6 +22,7 @@ type User struct {
 	Gender string `json:"gender"`
 	Email string `json:"email"`
 	Password string `json:"password"`
+	Token string `json:"token";sql:"-"`
 }
 
 func (user *User) Validate() (map[string]interface{}, bool) {
@@ -56,9 +64,12 @@ func (user *User) Create() (map[string]interface{}) {
 	}
 
 	// TODO Create new JWT Token for the newly registered user
-	// user.Token = "12312asdasd"
+	tk := &Token{UserId: user.ID}
+	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
+	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
+	user.Token = tokenString
 
-	user.Password = "" // Delete Password
+	user.Password = ""  // Delete Password
 
 	response := u.Message(true, "User has been created")
 	response["user"] = user
@@ -80,10 +91,13 @@ func Login(email string, password string) (map[string]interface{}) {
 		return u.Message(false, "Invalid login credentials. Please try again")
 	}
 
-	user.Password = ""
+	user.Password = "" // Delete Password
 	
 	// TODO Create JWT token
-	// user.Token = "eo013kf0asdfp1"
+	tk := &Token{UserId:user.ID}
+	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
+	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
+	user.Token = tokenString
 
 	resp := u.Message(true, "Logged In")
 	resp["user"] = user

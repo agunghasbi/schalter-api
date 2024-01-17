@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/agunghasbi/schalter-api/middlewares"
 	"github.com/agunghasbi/schalter-api/controllers"
 	"net/http"
 	"os"
@@ -29,7 +30,7 @@ func main() {
 	// router.HandleFunc("/api/contacts/new", controllers.CreateContact).Methods("POST")
 	// router.HandleFunc("/api/me/contacts", controllers.GetContactsFor).Methods("GET") //  user/2/contacts
 
-	// router.Use(app.JwtAuthentication) //attach JWT auth middleware
+	router.Use(middlewares.JwtAuthentication) //attach JWT auth middleware
 
 	//router.NotFoundHandler = app.NotFoundHandler
 
