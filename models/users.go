@@ -1,17 +1,21 @@
 package models
 
 import (
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	u "github.com/agunghasbi/schalter-api/utils"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 	"strings"
 	"os"
+	"time"
 )
+
+// Create the JWT key used to create the signature
+var jwtKey = []byte(os.Getenv("token_password"))
 
 type Token struct {
 	UserId uint
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 type User struct {
@@ -22,7 +26,6 @@ type User struct {
 	Gender string `json:"gender"`
 	Email string `json:"email"`
 	Password string `json:"password"`
-	Token string `json:"token";sql:"-"`
 }
 
 func (user *User) Validate() (map[string]interface{}, bool) {
@@ -63,16 +66,24 @@ func (user *User) Create() (map[string]interface{}) {
 		return u.Message(false, "Failed to create user, connection error")
 	}
 
-	// TODO Create new JWT Token for the newly registered user
-	tk := &Token{UserId: user.ID}
-	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
-	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
-	user.Token = tokenString
-
 	user.Password = ""  // Delete Password
+
+	// Create new JWT Token for the newly registered user
+	expirationTime := time.Now().Add(5 * time.Minute) // here, we have kept it as 5 minutes
+	tk := &Token{
+		UserId: user.ID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			// In JWT, the expiry time is expressed as unix milliseconds
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tk)
+	tokenString, _ := token.SignedString(jwtKey)
 
 	response := u.Message(true, "User has been created")
 	response["user"] = user
+	response["token"] = tokenString
+	response["token_expires"] = expirationTime
 	return response
 }
 
@@ -93,16 +104,21 @@ func Login(email string, password string) (map[string]interface{}) {
 
 	user.Password = "" // Delete Password
 	
-	// TODO Create JWT token
-	tk := &Token{UserId:user.ID}
-	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
-	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
-	user.Token = tokenString
+	// Create JWT token
+	expirationTime := time.Now().Add(5 * time.Minute) // here, we have kept it as 5 minutes
+	tk := &Token{
+		UserId: user.ID,
+		RegisteredClaims: jwt.RegisteredClaims{
+			// In JWT, the expiry time is expressed as unix milliseconds
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tk)
+	tokenString, _ := token.SignedString(jwtKey)
 
 	resp := u.Message(true, "Logged In")
 	resp["user"] = user
+	resp["token"] = tokenString
+	resp["token_expires"] = expirationTime
 	return resp
-
-
-
 }
