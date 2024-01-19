@@ -3,7 +3,7 @@ package middlewares
 import (
 	"context"
 	"fmt"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/agunghasbi/schalter-api/models"
 	u "github.com/agunghasbi/schalter-api/utils"
 	"net/http"
@@ -15,7 +15,9 @@ var JwtAuthentication = func (next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		noAuth := []string{"/api/v1/login", "/api/v1/register"} // List of endpoints that doesn't require auth
+		// === List Endpoint Method
+
+		noAuth := []string{"/api/v1/login","/api/v1/register"} // List of endpoints that doesn't require auth
 		requestPath := r.URL.Path //current request path
 
 		// serve the request if does not need authentication
@@ -25,6 +27,18 @@ var JwtAuthentication = func (next http.Handler) http.Handler {
 				return
 			}
 		}
+		
+		// === List Endpoint Method
+
+
+		// === GET HTTP method
+
+		// if r.Method == "GET" {
+		// 	next.ServeHTTP(w, r)
+		// 	return
+		// }
+
+		// === GET HTTP method
 
 		response := make(map[string]interface{})
 		tokenHeader := r.Header.Get("Authorization") // Grab the token from header
