@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"github.com/jinzhu/gorm"
+	u "github.com/agunghasbi/schalter-api/utils"
 )
 
 type Ticket struct {
@@ -26,6 +27,62 @@ type TicketWithEvent struct {
 	Description string `json:"description"`
 	SaleStart string `json:"sale_start"`
 	SaleEnd string `json:"sale_end"`
+}
+
+func (ticket *Ticket) Validate() (map[string]interface{}, bool) {
+	if ticket.EventID == 0 {
+		return u.Message(false, "Event ID must be provided"), false
+	}
+
+	// All the required parameters are present
+	return u.Message(true, "success"), true
+}
+
+func (ticket *Ticket) Create() (map[string]interface{}) {
+	if resp, ok := ticket.Validate(); !ok {
+		return resp
+	}
+
+	if err := GetDB().Create(ticket).Error; err != nil {
+		return u.Message(false, err.Error())
+	}
+
+	resp := u.Message(true, "success")
+	resp["ticket"] = ticket
+	return resp
+}
+
+func (ticket *Ticket) Update() (map[string]interface{}) {
+	if resp, ok := ticket.Validate(); !ok {
+		return resp
+	}
+
+	if err := GetDB().Save(ticket).Error; err != nil {
+		return u.Message(false, err.Error())
+	}
+
+	resp := u.Message(true, "success")
+	resp["ticket"] = ticket
+	return resp
+}
+
+func (ticket *Ticket) Delete() (map[string]interface{}) {
+	if err := GetDB().Delete(ticket).Error; err != nil {
+		return u.Message(false, err.Error())
+	}
+
+	resp := u.Message(true, "Ticket successfully deleted.")
+	return resp
+}
+
+func GetTicket(id uint64) *Ticket {
+	ticket := &Ticket{}
+	GetDB().Table("tickets").Where("id = ?", id).First(ticket)
+	if ticket.Name == "" { //Ticket not found!
+		return nil
+	}
+
+	return ticket
 }
 
 func GetTickets(preloadEvent bool) ([]*TicketWithEvent) {
